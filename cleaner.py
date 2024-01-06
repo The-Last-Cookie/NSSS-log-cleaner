@@ -1,9 +1,9 @@
 from datetime import datetime
 import json
 
-raw_time_start = 11
-raw_line_start = 27
-time_end = 9
+raw_time_start = 11 # Index of time specification
+raw_line_start = 27 # Index of where the actual text begins
+time_end = 9 # length of time specification
 line_start = 17
 
 def clean_ports_from_IP(text: str):
@@ -189,12 +189,13 @@ for line in raw_lines:
     if not found_illegal:
         keep_last_chatter = False
 
-        if len(players_login_times) == 0:
+        if len(players_login_times) == 0: # does this make sense?
             cleaned_lines.append("\n")
             if day_timestamp != line[:raw_time_start - 1]:
                 day_timestamp = line[:raw_time_start - 1]
                 cleaned_lines.append("========================================== {} ==========================================\n\n".format(day_timestamp))
 
+        # extract base text from line
         clean_line = line[raw_time_start:]
         clean_line = clean_line.replace("[INFO] ", "")
         clean_line = clean_ports_from_IP(clean_line)
@@ -204,13 +205,14 @@ for line in raw_lines:
         elif "lost connection" in clean_line:
             clean_line = clean_logout(clean_line, line)
         elif "tried command" in clean_line:
+            # function clean_try_command and clean_command could probably one function
             clean_line = clean_try_command(clean_line)
         elif "issued server command" in clean_line:
             clean_line = clean_command(clean_line)
         else:
             clean_line = clean_line[:time_end] + "        " + clean_line[time_end:]
             clean_line, last_chatter = clean_chat(clean_line, last_chatter)
-            keep_last_chatter = True
+            keep_last_chatter = True # indent next message if it the same player wrote again
 
         cleaned_lines.append(clean_line)
 
